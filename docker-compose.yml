@@ -6,7 +6,7 @@ networks:
 
 services:
   mysql:
-    container_name: mysql
+    container_name: mysql-server
     image: mysql:5.7
     networks:
       - network-zabbix
@@ -14,20 +14,29 @@ services:
       - '3306:3306'
     volumes:
       - './zabbix/mysql:/var/lib/data'
+    command: --character-set-server=utf8 --collation-server=utf8_bin --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD=carryontech
+      - MYSQL_ROOT_PASSWORD=danillocampelo
       - MYSQL_DATABASE=zabbix
       - MYSQL_USER=zabbix
-      - MYSQL_PASSWORD=carryontech
-
+      - MYSQL_PASSWORD=alamo123
+      
+  zabbix-java-gateway:
+    container_name: zabbix-java-gateway
+    image: zabbix/zabbix-java-gateway
+    networks:
+      -network-zabbix
+    restart: unless-stopped
+  
   zabbix-server:
-    container_name: zabbix-server
-    image: zabbix/zabbix-server-mysql:ubuntu-5.0.1
+    container_name: zabbix-server-mysql
+    image: zabbix/zabbix-server-mysql
     networks:
       - network-zabbix
     links:
-      - mysql
-    restart: always
+      - mysql-server:mysql
+      - zabbix-java-gateway:zabbix-java-gateway
+    restart: unless-stopped
     ports:
       - '10051:10051'
     volumes:
@@ -36,18 +45,20 @@ services:
       - DB_SERVER_HOST=mysql
       - MYSQL_DATABASE=zabbix
       - MYSQL_USER=zabbix
-      - MYSQL_PASSWORD=carryontech
+      - MYSQL_PASSWORD=alamo123
+      - ZBX_JAVAGATEWAY=zabbix-java-gateway
     depends_on:
       - mysql
 
   zabbix-frontend:
-    container_name: zabbix-frontend
-    image: zabbix/zabbix-web-apache-mysql:ubuntu-5.0.1
+    container_name: zabbix-web-nginx-mysql
+    image: zabbix/zabbix-web-nginx-mysql
     networks:
       - network-zabbix
     links:
-      - mysql
-    restart: always
+      - mysql-server:mysql
+      - zabbix-server-mysql:zabbix-server
+    restart: unless-stopped
     ports:
       - '80:8080'
       - '443:8443'
@@ -55,7 +66,7 @@ services:
       - DB_SERVER_HOST=mysql
       - MYSQL_DATABASE=zabbix
       - MYSQL_USER=zabbix
-      - MYSQL_PASSWORD=carryontech
+      - MYSQL_PASSWORD=alamo123
       - PHP_TZ=America/Sao_Paulo
     depends_on:
       - mysql
@@ -66,8 +77,8 @@ services:
     networks:
       - network-zabbix
     links:
-      - mysql
-      - zabbix-server
+      - mysql-server:mysql
+      - zabbix-server-mysql:zabbix-server
     restart: always
     ports:
       - '3000:3000'
@@ -83,7 +94,8 @@ services:
     networks:
       - network-zabbix
     links:
-      - zabbix-server
+      - mysql-server:mysql
+      - zabbix-server-mysql:zabbix-server
     restart: always
     privileged: true
     volumes:
@@ -92,5 +104,6 @@ services:
       - '10050:10050'
     environment:
       - ZBX_HOSTNAME=Zabbix server
-      - ZBX_SERVER_HOST=172.18.0.1
+      - ZBX_SERVER_HOST=zabbix-server
+
     
