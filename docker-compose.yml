@@ -34,8 +34,8 @@ services:
     networks:
       - network-zabbix
     links:
-      - mysql-server:mysql
-      - zabbix-java-gateway:zabbix-java-gateway
+      - mysql-server
+      - zabbix-java-gateway
     restart: unless-stopped
     ports:
       - '10051:10051'
@@ -56,8 +56,8 @@ services:
     networks:
       - network-zabbix
     links:
-      - mysql-server:mysql
-      - zabbix-server-mysql:zabbix-server
+      - mysql-server
+      - zabbix-server-mysql
     restart: unless-stopped
     ports:
       - '80:8080'
@@ -77,8 +77,8 @@ services:
     networks:
       - network-zabbix
     links:
-      - mysql-server:mysql
-      - zabbix-server-mysql:zabbix-server
+      - mysql-server
+      - zabbix-server-mysql
     restart: always
     ports:
       - '3000:3000'
@@ -94,8 +94,8 @@ services:
     networks:
       - network-zabbix
     links:
-      - mysql-server:mysql
-      - zabbix-server-mysql:zabbix-server
+      - mysql-server
+      - zabbix-server-mysql
     restart: always
     privileged: true
     volumes:
