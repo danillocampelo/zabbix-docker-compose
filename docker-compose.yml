@@ -12,8 +12,8 @@ services:
       - network-zabbix
     ports:
       - '3306:3306'
-    volumes:
-      - './zabbix/mysql:/var/lib/data'
+    #volumes:
+    #  - './zabbix/mysql:/var/lib/data'
     command: --character-set-server=utf8 --collation-server=utf8_bin --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ROOT_PASSWORD=danillocampelo
@@ -39,8 +39,8 @@ services:
     restart: unless-stopped
     ports:
       - '10051:10051'
-    volumes:
-      - './zabbix/alertscripts:/usr/lib/zabbix/alertscripts'
+    #volumes:
+    #  - './zabbix/alertscripts:/usr/lib/zabbix/alertscripts'
     environment:
       - DB_SERVER_HOST=mysql
       - MYSQL_DATABASE=zabbix
@@ -89,7 +89,7 @@ services:
  #     - zabbix-server
   zabbix-agent:
     container_name: zabbix-agent
-    image: zabbix/zabbix-agent2:alpine-5.0.1
+    image: zabbix/zabbix-agent
     user: root
     networks:
       - network-zabbix
@@ -98,8 +98,8 @@ services:
       - zabbix-server
     restart: always
     privileged: true
-    volumes:
-      - /var/run:/var/run
+    #volumes:
+    #  - /var/run:/var/run
     ports:
       - '10050:10050'
     environment:
